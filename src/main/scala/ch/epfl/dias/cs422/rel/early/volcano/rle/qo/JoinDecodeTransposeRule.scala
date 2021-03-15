@@ -27,7 +27,12 @@ class JoinDecodeTransposeRule protected (
      */
 
     call.transformTo(
-      ???
+      leftdecode.copy(
+        join.copy(
+          join.getTraitSet,
+          java.util.List.of(leftdecode.getInput, rightdecode.getInput)
+        )
+      )
     )
   }
 }

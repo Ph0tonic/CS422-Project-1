@@ -20,7 +20,12 @@ class FilterDecodeTransposeRule protected (config: RelRule.Config)
     val decode: LogicalDecode = call.rel(1)
 
     call.transformTo(
-      ???
+      decode.copy(
+        filter.copy(
+          filter.getTraitSet,
+          java.util.List.of(decode.getInput)
+        )
+      )
     )
   }
 }

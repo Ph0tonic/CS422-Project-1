@@ -1,11 +1,9 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.RLEentry
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{Elem, NilRLEentry, NilTuple, RLEentry, Tuple}
 import ch.epfl.dias.cs422.helpers.rex.AggregateCall
 import org.apache.calcite.util.ImmutableBitSet
-
-import scala.jdk.CollectionConverters._
 
 /**
   * @inheritdoc
@@ -22,18 +20,70 @@ class RLEAggregate protected (
     ](input, groupSet, aggCalls)
     with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
-  /**
-    * @inheritdoc
-    */
-  override def open(): Unit = ???
+  protected var aggregated = List.empty[(Tuple, Vector[Tuple])]
+  private var index = -1
 
   /**
     * @inheritdoc
     */
-  override def next(): Option[RLEentry] = ???
+  override def open(): Unit = {
+    input.open()
+    var next = input.next()
+    if (next == NilRLEentry && groupSet.isEmpty) {
+      // return aggEmptyValue for each aggregate.
+      aggregated = List(
+        IndexedSeq.empty[Elem] -> Vector(
+            aggCalls
+              .map(aggEmptyValue)
+              .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
+              .asInstanceOf[Tuple]
+          )
+      )
+
+    } else {
+      // Group based on the key produced by the indices in groupSet
+      val keyIndices = groupSet.toArray
+      var aggregates = Map.empty[Tuple, Vector[Tuple]]
+      while (next != NilRLEentry) {
+        val entry: RLEentry = next.get
+        val tuple: Tuple = entry.value
+        val key: Tuple = keyIndices.map(i => tuple(i))
+        aggregates = aggregates.get(key) match {
+          case Some(arr: Vector[Tuple]) => aggregates + (key -> (arr :+ tuple))
+          case _                        => aggregates + (key -> Vector(tuple))
+        }
+        next = input.next()
+      }
+
+      aggregated = aggregates.toList
+    }
+  }
 
   /**
     * @inheritdoc
     */
-  override def close(): Unit = ???
+  override def next(): Option[RLEentry] = {
+    aggregated match {
+      case (key, tuples) :: tail =>
+        aggregated = tail
+        index=index+1
+        Some(
+          RLEentry(
+            index,
+            1,
+            key.++(
+              aggCalls.map(agg =>
+                tuples.map(t => agg.getArgument(t)).reduce(aggReduce(_, _, agg))
+              )
+            )
+          )
+        )
+      case _ => NilTuple
+    }
+  }
+
+  /**
+    * @inheritdoc
+    */
+  override def close(): Unit = input.close()
 }

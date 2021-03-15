@@ -35,15 +35,19 @@ class RLEProject protected (
   /**
     * @inheritdoc
     */
-  override def open(): Unit = ???
+  override def open(): Unit = input.open()
 
   /**
     * @inheritdoc
     */
-  override def next(): Option[RLEentry] = ???
+  override def next(): Option[RLEentry] =
+    input.next.map {
+      case RLEentry(startVID, length, t) =>
+        RLEentry(startVID, length, evaluator(t))
+    }
 
   /**
     * @inheritdoc
     */
-  override def close(): Unit = ???
+  override def close(): Unit = input.close()
 }

@@ -17,18 +17,86 @@ class Reconstruct protected (
     ](left, right)
     with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
-  /**
-    * @inheritdoc
-    */
-  override def open(): Unit = ???
+  private var leftEntry: Option[RLEentry] = NilRLEentry
+  private var rightEntry: Option[RLEentry] = NilRLEentry
+  private var index: Long = 0
 
   /**
     * @inheritdoc
     */
-  override def next(): Option[RLEentry] = ???
+  override def open(): Unit = {
+    left.open()
+    right.open()
+  }
 
   /**
     * @inheritdoc
     */
-  override def close(): Unit = ???
+  override def next(): Option[RLEentry] = {
+    if (rightEntry.isEmpty) {
+      rightEntry = right.next()
+      if (rightEntry.isEmpty) {
+        return NilRLEentry
+      }
+    }
+    if (leftEntry.isEmpty) {
+      leftEntry = left.next()
+      if (leftEntry.isEmpty) {
+        return NilRLEentry
+      }
+    }
+
+    leftEntry match {
+      case Some(l) =>
+        rightEntry match {
+          case Some(r) =>
+            if (l.startVID <= r.startVID && l.endVID >= r.startVID) {
+              val next_entry = Some(
+                RLEentry(
+                  index,
+                  l.endVID - r.startVID + 1,
+                  l.value ++ r.value
+                )
+              )
+              index = index + 1
+              if (r.endVID > l.endVID) {
+                leftEntry = NilRLEentry
+              } else {
+                rightEntry = NilRLEentry
+              }
+              next_entry
+            } else if (l.startVID >= r.startVID && l.startVID <= r.endVID) {
+              val next_entry = Some(
+                RLEentry(
+                  index,
+                  r.endVID - l.startVID + 1,
+                  l.value ++ r.value
+                )
+              )
+              index = index + 1
+              if (r.endVID > l.endVID) {
+                leftEntry = NilRLEentry
+              } else {
+                rightEntry = NilRLEentry
+              }
+
+              next_entry
+            } else if (l.endVID < r.startVID) {
+              leftEntry = NilRLEentry
+              next()
+            } else {
+              rightEntry = NilRLEentry
+              next()
+            }
+        }
+    }
+  }
+
+  /**
+    * @inheritdoc
+    */
+  override def close(): Unit = {
+    right.close()
+    left.close()
+  }
 }

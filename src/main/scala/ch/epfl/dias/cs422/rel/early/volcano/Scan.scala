@@ -1,9 +1,9 @@
 package ch.epfl.dias.cs422.rel.early.volcano
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.Tuple
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilTuple, Tuple}
 import ch.epfl.dias.cs422.helpers.store.rle.RLEStore
-import ch.epfl.dias.cs422.helpers.store.{ScannableTable, Store}
+import ch.epfl.dias.cs422.helpers.store.{RowStore, ScannableTable, Store}
 import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
 
 /**
@@ -21,41 +21,58 @@ class Scan protected (
     ](cluster, traitSet, table)
     with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
+  /**
+    * A [[Store]] is an in-memory storage the data.
+    *
+    * Accessing the data is store-type specific and thus
+    * you have to convert it to one of the subtypes.
+    * See [[getRow]] for an example.
+    */
   protected val scannable: Store = tableToStore(
     table.unwrap(classOf[ScannableTable])
   )
+  protected var index = 0
+  protected var count: Long = 0L
 
   /**
-   * Helper function (you do not have to use it or implement it)
-   * It's purpose is to show how to convert the [[scannable]] to a
-   * specific [[Store]].
-   *
-   * @param rowId row number (startign from 0)
-   * @return the row as a Tuple
-   */
+    * @inheritdoc
+    */
+  override def open(): Unit = {
+    index = 0
+    count = scannable.getRowCount
+  }
+
+  /**
+    * @inheritdoc
+    */
+  override def next(): Option[Tuple] = {
+    if (index >= count) {
+      NilTuple
+    } else {
+      val next_tuple = getRow(index)
+      index = index + 1
+      Some(next_tuple)
+    }
+  }
+
+  /**
+    * Helper function (you do not have to use it or implement it)
+    * It's purpose is to show how to convert the [[scannable]] to a
+    * specific [[Store]].
+    *
+    * @param rowId row number (startign from 0)
+    * @return the row as a Tuple
+    */
   private def getRow(rowId: Int): Tuple = {
     scannable match {
-      case rleStore: RLEStore =>
-        /**
-         * For this project, it's safe to assume scannable will always
-         * be a [[RLEStore]].
-         */
-        ???
+      case rowStore: RowStore => rowStore.getRow(rowId)
+      case rleStore: RLEStore => rleStore.getRLEColumn(rowId)
     }
   }
 
   /**
     * @inheritdoc
     */
-  override def open(): Unit = ???
+  override def close(): Unit = {}
 
-  /**
-    * @inheritdoc
-    */
-  override def next(): Option[Tuple] = ???
-
-  /**
-    * @inheritdoc
-    */
-  override def close(): Unit = ???
 }

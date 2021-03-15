@@ -29,15 +29,22 @@ class RLEFilter protected (
   /**
     * @inheritdoc
     */
-  override def open(): Unit = ???
+  override def open(): Unit = input.open()
 
   /**
     * @inheritdoc
     */
-  override def next(): Option[RLEentry] = ???
+  override def next(): Option[RLEentry] = {
+    val next_entry = input.next()
+    next_entry match {
+      case NilRLEentry                   => NilRLEentry
+      case Some(e) if predicate(e.value) => next_entry
+      case Some(_)                       => next()
+    }
+  }
 
   /**
     * @inheritdoc
     */
-  override def close(): Unit = ???
+  override def close(): Unit = input.open()
 }
