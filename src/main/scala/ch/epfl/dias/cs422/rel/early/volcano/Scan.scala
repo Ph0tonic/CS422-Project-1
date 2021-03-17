@@ -17,14 +17,14 @@ import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator]]
   */
 class Scan protected (
-                       cluster: RelOptCluster,
-                       traitSet: RelTraitSet,
-                       table: RelOptTable,
-                       tableToStore: ScannableTable => Store
-                     ) extends skeleton.Scan[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
-](cluster, traitSet, table)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
+    cluster: RelOptCluster,
+    traitSet: RelTraitSet,
+    table: RelOptTable,
+    tableToStore: ScannableTable => Store
+) extends skeleton.Scan[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
+    ](cluster, traitSet, table)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
   /**
     * A [[Store]] is an in-memory storage the data.
@@ -63,8 +63,7 @@ class Scan protected (
     scannable match {
       case rowStore: RowStore => Some(rowStore.getRow(index))
       case _: RLEStore => {
-        columns =
-          columns.map(c => c.filter(e => e.endVID >= index))
+        columns = columns.map(c => c.filter(e => e.endVID >= index))
         Some(
           columns.foldLeft(IndexedSeq.empty[Elem])((acc, col) =>
             acc :++ col(0).value

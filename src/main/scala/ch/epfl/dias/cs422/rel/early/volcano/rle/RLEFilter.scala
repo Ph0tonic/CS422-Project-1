@@ -10,12 +10,12 @@ import org.apache.calcite.rex.RexNode
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEFilter protected (
-                            input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-                            condition: RexNode
-                          ) extends skeleton.Filter[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-](input, condition)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+    condition: RexNode
+) extends skeleton.Filter[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+    ](input, condition)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   /**
     * Function that, evaluates the predicate [[condition]]

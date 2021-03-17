@@ -12,13 +12,13 @@ import org.apache.calcite.rex.RexNode
   * @see [[ch.epfl.dias.cs422.helpers.builder.skeleton.Join.getRightKeys]]
   */
 class Join(
-            left: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
-            right: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
-            condition: RexNode
-          ) extends skeleton.Join[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
-](left, right, condition)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
+    left: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
+    right: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
+    condition: RexNode
+) extends skeleton.Join[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
+    ](left, right, condition)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[Tuple]

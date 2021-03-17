@@ -1,7 +1,13 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{Elem, NilRLEentry, NilTuple, RLEentry, Tuple}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{
+  Elem,
+  NilRLEentry,
+  NilTuple,
+  RLEentry,
+  Tuple
+}
 import ch.epfl.dias.cs422.helpers.rex.AggregateCall
 import org.apache.calcite.util.ImmutableBitSet
 
@@ -12,13 +18,13 @@ import org.apache.calcite.util.ImmutableBitSet
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEAggregate protected (
-                               input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-                               groupSet: ImmutableBitSet,
-                               aggCalls: IndexedSeq[AggregateCall]
-                             ) extends skeleton.Aggregate[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-](input, groupSet, aggCalls)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+    groupSet: ImmutableBitSet,
+    aggCalls: IndexedSeq[AggregateCall]
+) extends skeleton.Aggregate[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+    ](input, groupSet, aggCalls)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   protected var aggregated = List.empty[(Tuple, Vector[Tuple])]
   private var index = -1
@@ -27,6 +33,7 @@ class RLEAggregate protected (
     * @inheritdoc
     */
   override def open(): Unit = {
+    index = -1
     input.open()
     var next = input.next()
     if (next == NilRLEentry && groupSet.isEmpty) {
@@ -66,7 +73,7 @@ class RLEAggregate protected (
     aggregated match {
       case (key, tuples) :: tail =>
         aggregated = tail
-        index=index+1
+        index = index + 1
         Some(
           RLEentry(
             index,

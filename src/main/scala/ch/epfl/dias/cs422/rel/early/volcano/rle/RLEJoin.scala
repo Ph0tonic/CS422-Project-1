@@ -1,7 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, RLEentry, Tuple}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, RLEentry, Tuple}
 import org.apache.calcite.rex.RexNode
 
 /**
@@ -11,13 +11,13 @@ import org.apache.calcite.rex.RexNode
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEJoin(
-               left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-               right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-               condition: RexNode
-             ) extends skeleton.Join[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-](left, right, condition)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+    left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+    right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+    condition: RexNode
+) extends skeleton.Join[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+    ](left, right, condition)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[RLEentry]
@@ -59,7 +59,6 @@ class RLEJoin(
     }
   }
 
-
   /**
     * @inheritdoc
     */
@@ -69,7 +68,11 @@ class RLEJoin(
     mapRight.get(leftKeys.map(entry.value(_))) match {
       case Some(entries) =>
         (for (e <- entries)
-          yield (RLEentry(index, entry.length * e.length, entry.value :++ e.value))).iterator
+          yield (RLEentry(
+            index,
+            entry.length * e.length,
+            entry.value :++ e.value
+          ))).iterator
       case _ => Iterator.empty
     }
   }
