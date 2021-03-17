@@ -1,7 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilTuple, RLEentry, Tuple}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, RLEentry, Tuple}
 import org.apache.calcite.rex.RexNode
 
 /**
@@ -22,12 +22,14 @@ class RLEJoin(
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[RLEentry]
   private var mapRight = Map.empty[Tuple, Vector[RLEentry]]
+  private var index = 0L
 
   /**
     * @inheritdoc
     */
   override def open(): Unit = {
     left.open()
+    index = 0L
 
     val rightKeys = getRightKeys
 
@@ -44,10 +46,12 @@ class RLEJoin(
     */
   override def next(): Option[RLEentry] = {
     if (it.hasNext) {
-      Some(it.next())
+      val entry = it.next()
+      index = index + entry.length
+      Some(entry)
     } else {
       left.next() match {
-        case NilTuple => NilTuple
+        case NilRLEentry => NilRLEentry
         case Some(t) =>
           it = iterate(t)
           next()
@@ -65,7 +69,7 @@ class RLEJoin(
     mapRight.get(leftKeys.map(entry.value(_))) match {
       case Some(entries) =>
         (for (e <- entries)
-          yield (RLEentry(entry.startVID, entry.length, entry.value :++ e.asInstanceOf[Tuple]))).iterator
+          yield (RLEentry(index, entry.length * e.length, entry.value :++ e.value))).iterator
       case _ => Iterator.empty
     }
   }

@@ -1,7 +1,12 @@
 package ch.epfl.dias.cs422.rel.early.volcano
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilTuple, Tuple}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{
+  Elem,
+  NilTuple,
+  RLEColumn,
+  Tuple
+}
 import ch.epfl.dias.cs422.helpers.store.rle.RLEStore
 import ch.epfl.dias.cs422.helpers.store.{RowStore, ScannableTable, Store}
 import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
@@ -31,42 +36,41 @@ class Scan protected (
   protected val scannable: Store = tableToStore(
     table.unwrap(classOf[ScannableTable])
   )
-  protected var index = 0
-  protected var count: Long = 0L
+  private var index = -1
+  private var columns = Seq.empty[RLEColumn]
 
   /**
     * @inheritdoc
     */
   override def open(): Unit = {
-    index = 0
-    count = scannable.getRowCount
+    index = -1
+    scannable match {
+      case rleStore: RLEStore =>
+        columns =
+          (0 until getRowType.getFieldCount).map(i => rleStore.getRLEColumn(i))
+      case _ =>
+    }
   }
 
   /**
     * @inheritdoc
     */
   override def next(): Option[Tuple] = {
-    if (index >= count) {
-      NilTuple
-    } else {
-      val next_tuple = getRow(index)
-      index = index + 1
-      Some(next_tuple)
+    index = index + 1
+    if (index >= scannable.getRowCount) {
+      return NilTuple
     }
-  }
-
-  /**
-    * Helper function (you do not have to use it or implement it)
-    * It's purpose is to show how to convert the [[scannable]] to a
-    * specific [[Store]].
-    *
-    * @param rowId row number (startign from 0)
-    * @return the row as a Tuple
-    */
-  private def getRow(rowId: Int): Tuple = {
     scannable match {
-      case rowStore: RowStore => rowStore.getRow(rowId)
-      case rleStore: RLEStore => rleStore.getRLEColumn(rowId)
+      case rowStore: RowStore => Some(rowStore.getRow(index))
+      case _: RLEStore => {
+        columns =
+          columns.map(c => c.filter(e => e.endVID >= index))
+        Some(
+          columns.foldLeft(IndexedSeq.empty[Elem])((acc, col) =>
+            acc :++ col(0).value
+          )
+        )
+      }
     }
   }
 

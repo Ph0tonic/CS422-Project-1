@@ -1,7 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, RLEentry}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, RLEentry, Tuple}
 
 /**
   * @inheritdoc
@@ -19,12 +19,13 @@ class Reconstruct protected (
 
   private var leftEntry: Option[RLEentry] = NilRLEentry
   private var rightEntry: Option[RLEentry] = NilRLEentry
-  private var index: Long = 0
 
   /**
     * @inheritdoc
     */
   override def open(): Unit = {
+    leftEntry = NilRLEentry
+    rightEntry = NilRLEentry
     left.open()
     right.open()
   }
@@ -33,15 +34,15 @@ class Reconstruct protected (
     * @inheritdoc
     */
   override def next(): Option[RLEentry] = {
-    if (rightEntry.isEmpty) {
-      rightEntry = right.next()
-      if (rightEntry.isEmpty) {
-        return NilRLEentry
-      }
-    }
     if (leftEntry.isEmpty) {
       leftEntry = left.next()
       if (leftEntry.isEmpty) {
+        return NilRLEentry
+      }
+    }
+    if (rightEntry.isEmpty) {
+      rightEntry = right.next()
+      if (rightEntry.isEmpty) {
         return NilRLEentry
       }
     }
@@ -53,12 +54,11 @@ class Reconstruct protected (
             if (l.startVID <= r.startVID && l.endVID >= r.startVID) {
               val next_entry = Some(
                 RLEentry(
-                  index,
+                  r.startVID,
                   l.endVID - r.startVID + 1,
-                  l.value ++ r.value
+                  l.value.asInstanceOf[Tuple] :++ r.value.asInstanceOf[Tuple]
                 )
               )
-              index = index + 1
               if (r.endVID > l.endVID) {
                 leftEntry = NilRLEentry
               } else {
@@ -68,12 +68,11 @@ class Reconstruct protected (
             } else if (l.startVID >= r.startVID && l.startVID <= r.endVID) {
               val next_entry = Some(
                 RLEentry(
-                  index,
+                  l.startVID,
                   r.endVID - l.startVID + 1,
-                  l.value ++ r.value
+                  l.value.asInstanceOf[Tuple] :++ r.value.asInstanceOf[Tuple]
                 )
               )
-              index = index + 1
               if (r.endVID > l.endVID) {
                 leftEntry = NilRLEentry
               } else {

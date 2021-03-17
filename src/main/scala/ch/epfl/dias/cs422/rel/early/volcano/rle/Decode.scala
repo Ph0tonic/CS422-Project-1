@@ -1,12 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{
-  NilRLEentry,
-  NilTuple,
-  RLEentry,
-  Tuple
-}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, Tuple}
 
 /**
   * @inheritdoc
@@ -22,7 +17,7 @@ class Decode protected (
     ](input)
     with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
-  private var tuple:Option[Tuple] = NilTuple
+  private var tuple: Option[Tuple] = NilTuple
   private var count: Long = 0
 
   /**
@@ -30,6 +25,7 @@ class Decode protected (
     */
   override def open(): Unit = {
     input.open()
+    tuple = NilTuple
     count = 0
   }
 
@@ -41,7 +37,7 @@ class Decode protected (
       count = count - 1
       tuple
     } else {
-      val nextTuple: Option[RLEentry] = input.next()
+      val nextTuple = input.next()
       nextTuple match {
         case NilRLEentry => NilTuple
         case Some(entry) =>
@@ -55,9 +51,5 @@ class Decode protected (
   /**
     * @inheritdoc
     */
-  override def close(): Unit = {
-    input.close()
-    tuple = NilTuple
-  }
-
+  override def close(): Unit = input.close()
 }

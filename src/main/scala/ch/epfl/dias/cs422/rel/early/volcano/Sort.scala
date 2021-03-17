@@ -10,14 +10,14 @@ import org.apache.calcite.rel.{RelCollation, RelFieldCollation}
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator]]
   */
 class Sort protected (
-                       input: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
-                       collation: RelCollation,
-                       offset: Option[Int],
-                       fetch: Option[Int]
-                     ) extends skeleton.Sort[
-  ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
-](input, collation, offset, fetch)
-  with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
+    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
+    collation: RelCollation,
+    offset: Option[Int],
+    fetch: Option[Int]
+) extends skeleton.Sort[
+      ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
+    ](input, collation, offset, fetch)
+    with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
   protected var sortedIterator: Iterator[Tuple] = Iterator()
   private var counter = 0
@@ -35,21 +35,26 @@ class Sort protected (
       next = input.next()
     }
 
-    val ordering: Ordering[Tuple] = collation.getFieldCollations
-      .toArray(
-        Array.ofDim[RelFieldCollation](collation.getFieldCollations.size)
-      )
-      .map(c => {
-        val order = Ordering.by[Tuple, Comparable[Elem]](
-          _(c.getFieldIndex).asInstanceOf[Comparable[Elem]]
-        )
-        if (c.direction.isDescending) {
-          order.reverse
-        } else {
-          order
-        }
-      })
-      .reduce(_.orElse(_))
+    val ordering: Ordering[Tuple] =
+      if (collation.getFieldCollations.size() > 0) {
+        collation.getFieldCollations
+          .toArray(
+            Array.ofDim[RelFieldCollation](collation.getFieldCollations.size)
+          )
+          .map(c => {
+            val order = Ordering.by[Tuple, Comparable[Elem]](
+              _(c.getFieldIndex).asInstanceOf[Comparable[Elem]]
+            )
+            if (c.direction.isDescending) {
+              order.reverse
+            } else {
+              order
+            }
+          })
+          .reduce(_.orElse(_))
+      } else {
+        Ordering.fromLessThan((_, _) => false)
+      }
 
     sorted = sorted.sorted(ordering)
     sortedIterator = sorted.iterator.drop(offset.getOrElse(0))
