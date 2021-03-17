@@ -11,13 +11,13 @@ import org.apache.calcite.rex.RexNode
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEJoin(
-    left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-    right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-    condition: RexNode
-) extends skeleton.Join[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-    ](left, right, condition)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+               left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+               right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+               condition: RexNode
+             ) extends skeleton.Join[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+](left, right, condition)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[RLEentry]

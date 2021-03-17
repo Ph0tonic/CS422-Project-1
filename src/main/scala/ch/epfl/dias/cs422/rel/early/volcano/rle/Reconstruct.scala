@@ -10,12 +10,12 @@ import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, RLEentry, Tuple}
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class Reconstruct protected (
-    left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-    right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-) extends skeleton.Reconstruct[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-    ](left, right)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+                              left: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+                              right: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+                            ) extends skeleton.Reconstruct[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+](left, right)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   private var leftEntry: Option[RLEentry] = NilRLEentry
   private var rightEntry: Option[RLEentry] = NilRLEentry
@@ -90,12 +90,12 @@ class Reconstruct protected (
         }
     }
   }
+    /**
+      * @inheritdoc
+      */
+    override def close(): Unit = {
+      right.close()
+      left.close()
+    }
 
-  /**
-    * @inheritdoc
-    */
-  override def close(): Unit = {
-    right.close()
-    left.close()
   }
-}

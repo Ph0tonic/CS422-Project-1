@@ -16,7 +16,7 @@ import org.apache.calcite.rex.RexUtil
   * @param config configuration parameters of the optimization rule
   */
 class FilterReconstructTransposeRule protected (config: RelRule.Config)
-    extends RelRule[RelRule.Config](config) {
+  extends RelRule[RelRule.Config](config) {
 
   override def onMatch(call: RelOptRuleCall): Unit = {
     val filter: LogicalFilter = call.rel(0)
@@ -93,7 +93,7 @@ object FilterReconstructTransposeRule {
   val INSTANCE = new FilterReconstructTransposeRule(
     // By default, get an empty configuration
     RelRule.Config.EMPTY
-    // and match:
+      // and match:
       .withOperandSupplier((b: RelRule.OperandBuilder) =>
         // A node of class classOf[LogicalFilter]
         b.operand(classOf[LogicalFilter])

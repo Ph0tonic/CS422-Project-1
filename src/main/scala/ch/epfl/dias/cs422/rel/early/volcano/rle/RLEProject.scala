@@ -17,13 +17,13 @@ import scala.jdk.CollectionConverters._
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEProject protected (
-    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-    projects: java.util.List[_ <: RexNode],
-    rowType: RelDataType
-) extends skeleton.Project[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-    ](input, projects, rowType)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+                             input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+                             projects: java.util.List[_ <: RexNode],
+                             rowType: RelDataType
+                           ) extends skeleton.Project[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+](input, projects, rowType)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   /**
     * Function that, when given a (non-NilTuple) tuple produced by the [[input]] operator,

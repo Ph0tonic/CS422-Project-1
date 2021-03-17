@@ -13,9 +13,9 @@ import org.apache.calcite.rel.logical.LogicalAggregate
   * @param config configuration parameters of the optimization rule
   */
 class AggregateDecodeTransposeRule protected (config: RelRule.Config)
-    extends RelRule(
-      config
-    ) {
+  extends RelRule(
+    config
+  ) {
 
   override def onMatch(call: RelOptRuleCall): Unit = {
     val agg: LogicalAggregate = call.rel(0)
@@ -40,7 +40,7 @@ object AggregateDecodeTransposeRule {
   val INSTANCE = new AggregateDecodeTransposeRule(
     // By default, get an empty configuration
     RelRule.Config.EMPTY
-    // and match:
+      // and match:
       .withOperandSupplier((b: RelRule.OperandBuilder) =>
         // A node of class classOf[LogicalAggregate]
         b.operand(classOf[LogicalAggregate])

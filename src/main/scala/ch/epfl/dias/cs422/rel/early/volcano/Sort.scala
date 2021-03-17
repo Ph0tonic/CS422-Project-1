@@ -10,14 +10,14 @@ import org.apache.calcite.rel.{RelCollation, RelFieldCollation}
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator]]
   */
 class Sort protected (
-    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
-    collation: RelCollation,
-    offset: Option[Int],
-    fetch: Option[Int]
-) extends skeleton.Sort[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
-    ](input, collation, offset, fetch)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
+                       input: ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
+                       collation: RelCollation,
+                       offset: Option[Int],
+                       fetch: Option[Int]
+                     ) extends skeleton.Sort[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator
+](input, collation, offset, fetch)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
   protected var sortedIterator: Iterator[Tuple] = Iterator()
   private var counter = 0

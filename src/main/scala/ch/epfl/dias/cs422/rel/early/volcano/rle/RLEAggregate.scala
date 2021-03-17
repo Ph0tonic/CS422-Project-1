@@ -12,13 +12,13 @@ import org.apache.calcite.util.ImmutableBitSet
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class RLEAggregate protected (
-    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
-    groupSet: ImmutableBitSet,
-    aggCalls: IndexedSeq[AggregateCall]
-) extends skeleton.Aggregate[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-    ](input, groupSet, aggCalls)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
+                               input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator,
+                               groupSet: ImmutableBitSet,
+                               aggCalls: IndexedSeq[AggregateCall]
+                             ) extends skeleton.Aggregate[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+](input, groupSet, aggCalls)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
   protected var aggregated = List.empty[(Tuple, Vector[Tuple])]
   private var index = -1
@@ -33,11 +33,11 @@ class RLEAggregate protected (
       // return aggEmptyValue for each aggregate.
       aggregated = List(
         IndexedSeq.empty[Elem] -> Vector(
-            aggCalls
-              .map(aggEmptyValue)
-              .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
-              .asInstanceOf[Tuple]
-          )
+          aggCalls
+            .map(aggEmptyValue)
+            .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
+            .asInstanceOf[Tuple]
+        )
       )
 
     } else {

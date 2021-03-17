@@ -13,8 +13,8 @@ import org.apache.calcite.rel.logical.LogicalJoin
   * @param config configuration parameters of the optimization rule
   */
 class JoinDecodeTransposeRule protected (
-    config: RelRule.Config
-) extends RelRule[RelRule.Config](config) {
+                                          config: RelRule.Config
+                                        ) extends RelRule[RelRule.Config](config) {
 
   override def onMatch(call: RelOptRuleCall): Unit = {
     val join: LogicalJoin = call.rel(0)
@@ -45,7 +45,7 @@ object JoinDecodeTransposeRule {
   val INSTANCE = new JoinDecodeTransposeRule(
     // By default, get an empty configuration
     RelRule.Config.EMPTY
-    // and match:
+      // and match:
       .withOperandSupplier((b: RelRule.OperandBuilder) =>
         // A node of class classOf[LogicalJoin]
         b.operand(classOf[LogicalJoin])

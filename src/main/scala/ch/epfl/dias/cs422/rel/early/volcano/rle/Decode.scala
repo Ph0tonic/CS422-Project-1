@@ -1,7 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano.rle
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, Tuple}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, RLEentry, Tuple}
 
 /**
   * @inheritdoc
@@ -10,12 +10,12 @@ import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, NilTuple, Tuple}
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator]]
   */
 class Decode protected (
-    input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-) extends skeleton.Decode[
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
-      ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
-    ](input)
-    with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
+                         input: ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+                       ) extends skeleton.Decode[
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator,
+  ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator
+](input)
+  with ch.epfl.dias.cs422.helpers.rel.early.volcano.Operator {
 
   private var tuple: Option[Tuple] = NilTuple
   private var count: Long = 0
@@ -48,8 +48,9 @@ class Decode protected (
     }
   }
 
-  /**
-    * @inheritdoc
-    */
-  override def close(): Unit = input.close()
-}
+
+    /**
+      * @inheritdoc
+      */
+    override def close(): Unit = input.close()
+  }

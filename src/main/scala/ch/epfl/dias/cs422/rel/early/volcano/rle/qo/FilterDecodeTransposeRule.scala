@@ -13,7 +13,7 @@ import org.apache.calcite.rel.logical.LogicalFilter
   * @param config configuration parameters of the optimization rule
   */
 class FilterDecodeTransposeRule protected (config: RelRule.Config)
-    extends RelRule(config) {
+  extends RelRule(config) {
 
   override def onMatch(call: RelOptRuleCall): Unit = {
     val filter: LogicalFilter = call.rel(0)
@@ -38,7 +38,7 @@ object FilterDecodeTransposeRule {
   val INSTANCE = new FilterDecodeTransposeRule(
     // By default, get an empty configuration
     RelRule.Config.EMPTY
-    // and match:
+      // and match:
       .withOperandSupplier((b: RelRule.OperandBuilder) =>
         // A node of class classOf[LogicalFilter]
         b.operand(classOf[LogicalFilter])
