@@ -30,7 +30,12 @@ class Project protected (
   }
 
   /**
-   * @inheritdoc
-   */
-  def execute(): IndexedSeq[Column] = ???
+    * @inheritdoc
+    */
+  def execute(): IndexedSeq[Column] =
+    input.transpose
+      .map(t => evaluator(t.toIndexedSeq.dropRight(1)) :+ t.last)
+      .transpose
+      .map(_.asInstanceOf[Column])
+      .toIndexedSeq
 }

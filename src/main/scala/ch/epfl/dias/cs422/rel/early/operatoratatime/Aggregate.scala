@@ -1,11 +1,9 @@
 package ch.epfl.dias.cs422.rel.early.operatoratatime
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.Column
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{Column, Elem, Tuple}
 import ch.epfl.dias.cs422.helpers.rex.AggregateCall
 import org.apache.calcite.util.ImmutableBitSet
-
-import scala.jdk.CollectionConverters._
 
 /**
   * @inheritdoc
@@ -22,7 +20,41 @@ class Aggregate protected (
     with ch.epfl.dias.cs422.helpers.rel.early.operatoratatime.Operator {
 
   /**
-   * @inheritdoc
-   */
-  override def execute(): IndexedSeq[Column] = ???
+    * @inheritdoc
+    */
+  override def execute(): IndexedSeq[Column] = {
+    val filtered =
+      input.transpose.filter(_.last.asInstanceOf[Boolean]).toIndexedSeq
+    if (filtered.isEmpty && groupSet.isEmpty) {
+      IndexedSeq(
+        aggCalls
+          .map(aggEmptyValue)
+          .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
+          .asInstanceOf[Tuple] :+ true
+      ).transpose
+    } else {
+      val keyIndices = groupSet.toArray
+
+      // Group based on the key produced by the indices in groupSet
+      filtered
+        .map(_.toIndexedSeq)
+        .foldLeft(Map.empty[Tuple, Vector[Tuple]])((acc, tuple) => {
+          val key: Tuple = keyIndices.map(i => tuple(i))
+          acc.get(key) match {
+            case Some(arr: Vector[Tuple]) => acc + (key -> (arr :+ tuple))
+            case _                        => acc + (key -> Vector(tuple))
+          }
+        })
+        .toIndexedSeq
+        .map {
+          case (key, tuples) =>
+            key.++(
+              aggCalls.map(agg =>
+                tuples.map(t => agg.getArgument(t)).reduce(aggReduce(_, _, agg))
+              )
+            ) :+ true
+        }
+        .transpose
+    }
+  }
 }
