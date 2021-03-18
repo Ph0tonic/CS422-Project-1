@@ -24,14 +24,24 @@ class Project protected (
   /**
     * Function that, when given a (non-NilTuple) tuple produced by the [[input]] operator,
     * it returns a new tuple composed of the evaluated projections [[projects]]
-   *
-   * FIXME
+    *
+    * FIXME
     */
-  lazy val evals: IndexedSeq[IndexedSeq[HomogeneousColumn] => HomogeneousColumn] =
-    projects.asScala.map(e => map(e, input.getRowType, isFilterCondition = false)).toIndexedSeq
+  lazy val evals
+      : IndexedSeq[IndexedSeq[HomogeneousColumn] => HomogeneousColumn] =
+    projects.asScala
+      .map(e => map(e, input.getRowType, isFilterCondition = false))
+      .toIndexedSeq
 
   /**
-   * @inheritdoc
-   */
-  def execute(): IndexedSeq[HomogeneousColumn] = ???
+    * @inheritdoc
+    */
+  def execute(): IndexedSeq[HomogeneousColumn] = {
+    val executed = input.execute()
+    if (executed.isEmpty) {
+      IndexedSeq.empty[HomogeneousColumn]
+    } else {
+      evals.map(_(executed.dropRight(1))) :+ executed.last
+    }
+  }
 }

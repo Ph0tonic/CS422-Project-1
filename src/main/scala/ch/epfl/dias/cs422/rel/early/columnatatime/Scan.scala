@@ -10,7 +10,7 @@ import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
   * @see [[ch.epfl.dias.cs422.helpers.builder.skeleton.Scan]]
   * @see [[ch.epfl.dias.cs422.helpers.rel.early.columnatatime.Operator]]
   */
-class Scan protected(
+class Scan protected (
     cluster: RelOptCluster,
     traitSet: RelTraitSet,
     table: RelOptTable,
@@ -25,7 +25,15 @@ class Scan protected(
   ).asInstanceOf[ColumnStore]
 
   /**
-   * @inheritdoc
-   */
-  def execute(): IndexedSeq[HomogeneousColumn] = ???
+    * @inheritdoc
+    */
+  def execute(): IndexedSeq[HomogeneousColumn] = {
+    (0 until getRowType.getFieldCount)
+      .map(
+        scannable.getColumn
+      ) :+ toHomogeneousColumnOfKnownType[Boolean](
+      (0L until scannable.getRowCount).toArray
+        .map(_ => true)
+    )
+  }
 }
