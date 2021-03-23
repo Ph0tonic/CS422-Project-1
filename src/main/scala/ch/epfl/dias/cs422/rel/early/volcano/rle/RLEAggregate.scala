@@ -46,7 +46,6 @@ class RLEAggregate protected (
             .asInstanceOf[Tuple]
         )
       )
-
     } else {
       // Group based on the key produced by the indices in groupSet
       val keyIndices = groupSet.toArray
@@ -85,12 +84,15 @@ class RLEAggregate protected (
             )
           )
         )
-      case _ => NilTuple
+      case _ => NilRLEentry
     }
   }
 
   /**
     * @inheritdoc
     */
-  override def close(): Unit = input.close()
+  override def close(): Unit = {
+    input.close()
+    aggregated = List.empty[(Tuple, Vector[Tuple])]
+  }
 }

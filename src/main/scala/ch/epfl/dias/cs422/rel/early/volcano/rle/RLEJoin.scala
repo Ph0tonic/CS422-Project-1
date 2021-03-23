@@ -62,7 +62,10 @@ class RLEJoin(
   /**
     * @inheritdoc
     */
-  override def close(): Unit = left.close()
+  override def close(): Unit = {
+    left.close()
+    it = Iterator.empty[RLEentry]
+  }
 
   private def iterate(entry: RLEentry): Iterator[RLEentry] = {
     mapRight.get(leftKeys.map(entry.value(_))) match {
