@@ -1,12 +1,7 @@
 package ch.epfl.dias.cs422.rel.early.volcano
 
 import ch.epfl.dias.cs422.helpers.builder.skeleton
-import ch.epfl.dias.cs422.helpers.rel.RelOperator.{
-  Elem,
-  NilTuple,
-  RLEColumn,
-  Tuple
-}
+import ch.epfl.dias.cs422.helpers.rel.RelOperator.{Elem, NilTuple, RLEColumn, RLEentry, Tuple}
 import ch.epfl.dias.cs422.helpers.store.rle.RLEStore
 import ch.epfl.dias.cs422.helpers.store.{RowStore, ScannableTable, Store}
 import org.apache.calcite.plan.{RelOptCluster, RelOptTable, RelTraitSet}
@@ -63,11 +58,10 @@ class Scan protected (
     scannable match {
       case rowStore: RowStore => Some(rowStore.getRow(index))
       case _: RLEStore => {
-//
-//        columns = columns.map(c => c match {
-//          case a :+ tail if a.endVID >= index => a:+ tail
-//        }) // c.filter(e => e.endVID >= index)
-        columns = columns.map(c => c.filter(e => e.endVID >= index))
+        columns = columns.map {
+          case e +: tail if e.endVID < index => tail
+          case e@_ => e
+        }
         Some(
           columns.foldLeft(IndexedSeq.empty[Elem])((acc, col) =>
             acc :++ col(0).value
