@@ -24,7 +24,7 @@ class Aggregate protected (
     */
   override def execute(): IndexedSeq[Column] = {
     val filtered =
-      input.transpose.filter(_.last.asInstanceOf[Boolean]).toIndexedSeq
+      input.execute().transpose.filter(_.last.asInstanceOf[Boolean]).toIndexedSeq
     if (filtered.isEmpty && groupSet.isEmpty) {
       IndexedSeq(
         aggCalls
@@ -38,14 +38,7 @@ class Aggregate protected (
       // Group based on the key produced by the indices in groupSet
       filtered
         .map(_.toIndexedSeq)
-        .foldLeft(Map.empty[Tuple, Vector[Tuple]])((acc, tuple) => {
-          val key: Tuple = keyIndices.map(i => tuple(i))
-          acc.get(key) match {
-            case Some(arr: Vector[Tuple]) => acc + (key -> (arr :+ tuple))
-            case _                        => acc + (key -> Vector(tuple))
-          }
-        })
-        .toIndexedSeq
+        .groupBy(tuple => keyIndices.map(tuple(_)).toIndexedSeq)
         .map {
           case (key, tuples) =>
             key.++(
@@ -54,6 +47,7 @@ class Aggregate protected (
               )
             ) :+ true
         }
+        .toIndexedSeq
         .transpose
     }
   }

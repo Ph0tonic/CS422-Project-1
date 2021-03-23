@@ -30,13 +30,11 @@ class Filter protected (
     * @inheritdoc
     */
   def execute(): IndexedSeq[Column] = {
-    input.transpose
+    input.execute().transpose
       .map(t => {
-        val left = t.dropRight(1).toIndexedSeq
+        val left = t.dropRight(1)
         left :+ (t.last.asInstanceOf[Boolean] && predicate(left))
       })
       .transpose
-      .map(_.asInstanceOf[Column])
-      .toIndexedSeq
   }
 }

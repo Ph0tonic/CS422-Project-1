@@ -23,11 +23,11 @@ class Aggregate protected (
     * @inheritdoc
     */
   override def execute(): IndexedSeq[HomogeneousColumn] = {
-    val filtered =
-      input
-        .execute()
-        .transpose
-        .filter(_.last.asInstanceOf[Boolean])
+    val filtered = input
+      .execute()
+      .transpose
+      .filter(_.last.asInstanceOf[Boolean])
+
     if (filtered.isEmpty && groupSet.isEmpty) {
       IndexedSeq(
         aggCalls
@@ -37,27 +37,21 @@ class Aggregate protected (
       ).transpose
         .map(toHomogeneousColumn)
     } else {
-      val keyIndices = groupSet.toArray
+      val keyIndices = groupSet.toArray.toIndexedSeq
 
       // Group based on the key produced by the indices in groupSet
       filtered
         .map(_.toIndexedSeq)
-        .foldLeft(Map.empty[Tuple, Vector[Tuple]])((acc, tuple) => {
-          val key: Tuple = keyIndices.map(i => tuple(i))
-          acc.get(key) match {
-            case Some(arr: Vector[Tuple]) => acc + (key -> (arr :+ tuple))
-            case _                        => acc + (key -> Vector(tuple))
-          }
-        })
-        .toIndexedSeq
+        .groupBy(tuple => keyIndices.map(i => tuple(i)))
         .map {
           case (key, tuples) =>
-            key.++(
+            (key ++
               aggCalls.map(agg =>
                 tuples.map(t => agg.getArgument(t)).reduce(aggReduce(_, _, agg))
               )
             ) :+ true
         }
+        .toIndexedSeq
         .transpose
         .map(toHomogeneousColumn)
     }

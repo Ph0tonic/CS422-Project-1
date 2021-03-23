@@ -44,7 +44,8 @@ class Sort protected (
         Ordering.fromLessThan((_, _) => false)
       }
 
-    input.transpose.toIndexedSeq
+    input.execute()
+      .transpose
       .filter(_.last.asInstanceOf[Boolean])
       .map(_.toIndexedSeq)
       .sorted(ordering)

@@ -31,6 +31,6 @@ class Scan protected (
     (0 until getRowType.getFieldCount)
       .map(
         scannable.getColumn(_).toIndexedSeq
-      ) :+ (0L until scannable.getRowCount).map(_ => true)
+      ) :+ IndexedSeq.fill(scannable.getRowCount.toInt)(true)
   }
 }

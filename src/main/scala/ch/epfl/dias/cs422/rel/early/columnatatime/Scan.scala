@@ -27,13 +27,8 @@ class Scan protected (
   /**
     * @inheritdoc
     */
-  def execute(): IndexedSeq[HomogeneousColumn] = {
-    (0 until getRowType.getFieldCount)
+  def execute(): IndexedSeq[HomogeneousColumn] = (0 until getRowType.getFieldCount)
       .map(
         scannable.getColumn
-      ) :+ toHomogeneousColumnOfKnownType[Boolean](
-      (0L until scannable.getRowCount).toArray
-        .map(_ => true)
-    )
-  }
+      ) :+ toHomogeneousColumnOfKnownType[Boolean]((IndexedSeq fill scannable.getRowCount.toInt)(true))
 }

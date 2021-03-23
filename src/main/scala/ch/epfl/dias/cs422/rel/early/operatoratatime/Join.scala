@@ -25,17 +25,13 @@ class Join(
     val rightKeys = getRightKeys
     val leftKeys = getLeftKeys
 
-    val mapRight: Map[Tuple, Vector[Tuple]] =
-      right.transpose
+    val mapRight: Map[Tuple, Iterable[Tuple]] =
+      right.execute().transpose
         .filter(_.last.asInstanceOf[Boolean])
         .map(_.toIndexedSeq)
-        .foldLeft(Map.empty[Tuple, Vector[Tuple]])((acc, t) => {
-          val key = rightKeys.map(t(_))
-          val tuples = acc.getOrElse(key, Vector.empty[Tuple])
-          acc + (key -> (tuples :+ t))
-        })
+        .groupBy(t => rightKeys.map(t(_)))
 
-    val t = left.transpose
+    val t = left.execute().transpose
       .filter(_.last.asInstanceOf[Boolean])
       .map(_.dropRight(1).toIndexedSeq)
       .flatMap(t => {
@@ -45,8 +41,6 @@ class Join(
         }
       })
       .transpose
-      .map(_.asInstanceOf[Column])
-      .toIndexedSeq
     t
   }
 }
