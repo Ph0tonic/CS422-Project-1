@@ -63,6 +63,10 @@ class Scan protected (
     scannable match {
       case rowStore: RowStore => Some(rowStore.getRow(index))
       case _: RLEStore => {
+//
+//        columns = columns.map(c => c match {
+//          case a :+ tail if a.endVID >= index => a:+ tail
+//        }) // c.filter(e => e.endVID >= index)
         columns = columns.map(c => c.filter(e => e.endVID >= index))
         Some(
           columns.foldLeft(IndexedSeq.empty[Elem])((acc, col) =>

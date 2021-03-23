@@ -34,6 +34,7 @@ class RLEAggregate protected (
     */
   override def open(): Unit = {
     index = -1
+
     input.open()
     var next = input.next()
     if (next == NilRLEentry && groupSet.isEmpty) {
@@ -52,11 +53,11 @@ class RLEAggregate protected (
       var aggregates = Map.empty[Tuple, Vector[Tuple]]
       while (next != NilRLEentry) {
         val entry: RLEentry = next.get
-        val tuple: Tuple = entry.value
-        val key: Tuple = keyIndices.map(i => tuple(i))
+        val tuples : Vector[Tuple] = Vector.range(0,entry.length).map(_=>entry.value)
+        val key: Tuple = keyIndices.map(i => entry.value(i))
         aggregates = aggregates.get(key) match {
-          case Some(arr: Vector[Tuple]) => aggregates + (key -> (arr :+ tuple))
-          case _                        => aggregates + (key -> Vector(tuple))
+          case Some(arr: Vector[Tuple]) => aggregates + (key -> (arr :++ tuples))
+          case _                        => aggregates + (key -> tuples)
         }
         next = input.next()
       }
