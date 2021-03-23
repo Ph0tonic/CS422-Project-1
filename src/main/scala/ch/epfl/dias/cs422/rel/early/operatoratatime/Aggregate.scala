@@ -24,7 +24,7 @@ class Aggregate protected (
     */
   override def execute(): IndexedSeq[Column] = {
     val filtered =
-      input.execute().transpose.filter(_.last.asInstanceOf[Boolean]).toIndexedSeq
+      input.execute().transpose.filter(_.last.asInstanceOf[Boolean])
     if (filtered.isEmpty && groupSet.isEmpty) {
       IndexedSeq(
         aggCalls
