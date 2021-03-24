@@ -25,23 +25,44 @@ class Join(
     val rightKeys = getRightKeys
     val leftKeys = getLeftKeys
 
-    val mapRight: Map[Tuple, IndexedSeq[Tuple]] =
-      right.execute().transpose
-        .filter(_.last.asInstanceOf[Boolean])
-        .groupBy(t => rightKeys.map(t(_)))
-
-    left
+    val loadedRight = right
+      .execute()
+      .transpose
+      .filter(_.last.asInstanceOf[Boolean])
+    val loadedLeft = left
       .execute()
       .transpose
       .filter(_.last.asInstanceOf[Boolean])
       .map(_.dropRight(1))
-      .flatMap(t => {
-        mapRight.get(leftKeys.map(t(_))) match {
-          case Some(tuples) => tuples.map(t :++ _)
-          case _            => IndexedSeq.empty
-        }
-      })
-      .transpose
-      .map(toHomogeneousColumn)
+
+    if (loadedLeft.size > loadedRight.size) {
+      val mapRight = loadedRight
+        .groupBy(t => rightKeys.map(t(_)))
+
+      loadedLeft
+        .flatMap(t => {
+          mapRight.get(leftKeys.map(t(_))) match {
+            case Some(tuples) => tuples.map(t :++ _)
+            case _            => IndexedSeq.empty
+          }
+        })
+        .transpose
+        .map(toHomogeneousColumn)
+    } else {
+      val mapLeft = loadedLeft
+        .groupBy(t => leftKeys.map(t(_)))
+
+      loadedRight
+        .flatMap(t => {
+          mapLeft.get(rightKeys.map(t(_))) match {
+            case Some(tuples) => tuples.map(_ :++ t)
+            case _            => IndexedSeq.empty
+          }
+        })
+        .transpose
+        .map(toHomogeneousColumn)
+
+    }
+
   }
 }
