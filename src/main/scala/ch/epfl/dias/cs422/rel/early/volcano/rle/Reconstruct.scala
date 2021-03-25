@@ -98,5 +98,4 @@ class Reconstruct protected (
     right.close()
     left.close()
   }
-
 }

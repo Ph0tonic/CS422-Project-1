@@ -4,7 +4,6 @@ import ch.epfl.dias.cs422.helpers.builder.skeleton
 import ch.epfl.dias.cs422.helpers.rel.RelOperator.{
   Elem,
   NilRLEentry,
-  NilTuple,
   RLEentry,
   Tuple
 }
@@ -53,11 +52,13 @@ class RLEAggregate protected (
       var aggregates = Map.empty[Tuple, Vector[Tuple]]
       while (next != NilRLEentry) {
         val entry: RLEentry = next.get
-        val tuples : Vector[Tuple] = Vector.range(0,entry.length).map(_=>entry.value)
+        val tuples: Vector[Tuple] =
+          Vector.range(0, entry.length).map(_ => entry.value)
         val key: Tuple = keyIndices.map(i => entry.value(i))
         aggregates = aggregates.get(key) match {
-          case Some(arr: Vector[Tuple]) => aggregates + (key -> (arr :++ tuples))
-          case _                        => aggregates + (key -> tuples)
+          case Some(arr: Vector[Tuple]) =>
+            aggregates + (key -> (arr :++ tuples))
+          case _ => aggregates + (key -> tuples)
         }
         next = input.next()
       }
