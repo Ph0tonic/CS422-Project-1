@@ -25,7 +25,7 @@ class RLEAggregate protected (
     ](input, groupSet, aggCalls)
     with ch.epfl.dias.cs422.helpers.rel.early.volcano.rle.Operator {
 
-  protected var aggregated = List.empty[(Tuple, Vector[Tuple])]
+  protected var aggregated = List.empty[(Tuple, Vector[RLEentry])]
   private var index = -1
 
   /**
@@ -40,25 +40,27 @@ class RLEAggregate protected (
       // return aggEmptyValue for each aggregate.
       aggregated = List(
         IndexedSeq.empty[Elem] -> Vector(
-          aggCalls
-            .map(aggEmptyValue)
-            .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
-            .asInstanceOf[Tuple]
+          RLEentry(
+            0,
+            1,
+            aggCalls
+              .map(aggEmptyValue)
+              .foldLeft(IndexedSeq.empty[Elem])((a, b) => a :+ b)
+              .asInstanceOf[Tuple]
+          )
         )
       )
     } else {
       // Group based on the key produced by the indices in groupSet
       val keyIndices = groupSet.toArray
-      var aggregates = Map.empty[Tuple, Vector[Tuple]]
+      var aggregates = Map.empty[Tuple, Vector[RLEentry]]
       while (next != NilRLEentry) {
         val entry: RLEentry = next.get
-        val tuples: Vector[Tuple] =
-          Vector.range(0, entry.length).map(_ => entry.value)
         val key: Tuple = keyIndices.map(i => entry.value(i))
         aggregates = aggregates.get(key) match {
-          case Some(arr: Vector[Tuple]) =>
-            aggregates + (key -> (arr :++ tuples))
-          case _ => aggregates + (key -> tuples)
+          case Some(arr: Vector[RLEentry]) =>
+            aggregates + (key -> (arr :+ entry))
+          case _ => aggregates + (key -> Vector(entry))
         }
         next = input.next()
       }
@@ -72,7 +74,7 @@ class RLEAggregate protected (
     */
   override def next(): Option[RLEentry] = {
     aggregated match {
-      case (key, tuples) :: tail =>
+      case (key, entries) :: tail =>
         aggregated = tail
         index = index + 1
         Some(
@@ -81,7 +83,7 @@ class RLEAggregate protected (
             1,
             key.++(
               aggCalls.map(agg =>
-                tuples.map(t => agg.getArgument(t)).reduce(aggReduce(_, _, agg))
+                entries.map(e => agg.getArgument(e.value, e.length)).reduce(aggReduce(_, _, agg))
               )
             )
           )
@@ -95,6 +97,6 @@ class RLEAggregate protected (
     */
   override def close(): Unit = {
     input.close()
-    aggregated = List.empty[(Tuple, Vector[Tuple])]
+    aggregated = List.empty[(Tuple, Vector[RLEentry])]
   }
 }
