@@ -30,11 +30,10 @@ class Filter protected (
     * @inheritdoc
     */
   def execute(): IndexedSeq[Column] = {
-    input.execute().transpose
-      .map(t => {
-        val left = t.dropRight(1)
-        left :+ (t.last.asInstanceOf[Boolean] && predicate(left))
-      })
-      .transpose
+    val executed = input.execute()
+    val left = executed.dropRight(1)
+    val rightColumn = executed.last
+    val newCondition = left.transpose.zipWithIndex.map{ case (t, i) => rightColumn(i).asInstanceOf[Boolean] && predicate(t)}
+    left :+ newCondition
   }
 }

@@ -21,7 +21,7 @@ class RLEJoin(
 
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[RLEentry]
-  private var mapRight = Map.empty[Tuple, Vector[RLEentry]]
+  private var mapRight = Map.empty[Tuple, IndexedSeq[RLEentry]]
   private var index = 0L
 
   /**
@@ -29,16 +29,17 @@ class RLEJoin(
     */
   override def open(): Unit = {
     left.open()
+    right.open()
     index = 0L
 
     val rightKeys = getRightKeys
-
-    mapRight =
-      right.foldLeft(Map.empty[Tuple, Vector[RLEentry]])((acc, entry) => {
-        val key = rightKeys.map(entry.value(_))
-        val entries = acc.getOrElse(key, Vector.empty[RLEentry])
-        acc + (key -> (entries :+ entry))
-      })
+    var loadedRight = IndexedSeq.empty[RLEentry]
+    var next = right.next()
+    while(next != NilRLEentry) {
+      loadedRight = loadedRight :+ next.get
+      next = right.next()
+    }
+    mapRight = loadedRight.groupBy(t => rightKeys.map(t.value(_)))
   }
 
   /**

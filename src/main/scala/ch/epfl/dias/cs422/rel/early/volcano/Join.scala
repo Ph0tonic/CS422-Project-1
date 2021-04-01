@@ -22,7 +22,7 @@ class Join(
 
   private val leftKeys = getLeftKeys
   private var it = Iterator.empty[Tuple]
-  private var mapRight = Map.empty[Tuple, Vector[Tuple]]
+  private var mapRight = Map.empty[Tuple, IndexedSeq[Tuple]]
 
   /**
     * @inheritdoc
@@ -31,12 +31,7 @@ class Join(
     left.open()
 
     val rightKeys = getRightKeys
-
-    mapRight = right.foldLeft(Map.empty[Tuple, Vector[Tuple]])((acc, t) => {
-      val key = rightKeys.map(t(_))
-      val tuples = acc.getOrElse(key, Vector.empty[Tuple])
-      acc + (key -> (tuples :+ t))
-    })
+    mapRight = right.toIndexedSeq.groupBy(t => rightKeys.map(t(_)))
   }
 
   /**
@@ -64,7 +59,7 @@ class Join(
     mapRight.get(leftKeys.map(l(_))) match {
       case Some(tuples) =>
         (for (e <- tuples)
-          yield (l :++ e.asInstanceOf[Tuple])).iterator
+          yield l :++ e.asInstanceOf[Tuple]).iterator
       case _ => Iterator.empty
     }
   }

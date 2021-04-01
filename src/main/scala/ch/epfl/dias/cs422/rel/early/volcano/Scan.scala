@@ -56,7 +56,6 @@ class Scan protected (
       return NilTuple
     }
     scannable match {
-      case rowStore: RowStore => Some(rowStore.getRow(index))
       case _: RLEStore => {
         columns = columns.map {
           case e +: tail if e.endVID < index => tail
