@@ -32,8 +32,16 @@ class Project protected (
   /**
     * @inheritdoc
     */
-  def execute(): IndexedSeq[Column] =
-    input.execute().transpose
-      .map(t => evaluator(t.dropRight(1)) :+ t.last)
-      .transpose
+  def execute(): IndexedSeq[Column] = {
+    val executed = input.execute()
+    if (executed.isEmpty) {
+      IndexedSeq.empty[Column]
+    } else {
+      executed
+        .dropRight(1)
+        .transpose
+        .map(t => evaluator(t))
+        .transpose :+ executed.last
+    }
+  }
 }
