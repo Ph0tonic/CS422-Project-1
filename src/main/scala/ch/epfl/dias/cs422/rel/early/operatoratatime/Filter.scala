@@ -33,7 +33,6 @@ class Filter protected (
     val executed = input.execute()
     val left = executed.dropRight(1)
     val rightColumn = executed.last
-    val newCondition = left.transpose.zipWithIndex.map{ case (t, i) => rightColumn(i).asInstanceOf[Boolean] && predicate(t)}
-    left :+ newCondition
+    left :+ left.transpose.zipWithIndex.map{ case (t, i) => rightColumn(i).asInstanceOf[Boolean] && predicate(t)}
   }
 }

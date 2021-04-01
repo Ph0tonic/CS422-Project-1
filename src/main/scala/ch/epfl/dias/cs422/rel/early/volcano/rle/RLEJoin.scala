@@ -72,11 +72,11 @@ class RLEJoin(
     mapRight.get(leftKeys.map(entry.value(_))) match {
       case Some(entries) =>
         (for (e <- entries)
-          yield (RLEentry(
+          yield RLEentry(
             index,
             entry.length * e.length,
             entry.value :++ e.value
-          ))).iterator
+          )).iterator
       case _ => Iterator.empty
     }
   }

@@ -35,7 +35,7 @@ class Project protected (
   def execute(): IndexedSeq[Column] = {
     val executed = input.execute()
     if (executed.isEmpty) {
-      IndexedSeq.empty[Column]
+      executed
     } else {
       executed
         .dropRight(1)

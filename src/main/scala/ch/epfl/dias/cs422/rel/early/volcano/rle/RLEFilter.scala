@@ -4,6 +4,8 @@ import ch.epfl.dias.cs422.helpers.builder.skeleton
 import ch.epfl.dias.cs422.helpers.rel.RelOperator.{NilRLEentry, RLEentry, Tuple}
 import org.apache.calcite.rex.RexNode
 
+import scala.annotation.tailrec
+
 /**
   * @inheritdoc
   * @see [[ch.epfl.dias.cs422.helpers.builder.skeleton.Filter]]
@@ -34,7 +36,7 @@ class RLEFilter protected (
   /**
     * @inheritdoc
     */
-  override def next(): Option[RLEentry] = {
+  @tailrec override final def next(): Option[RLEentry] = {
     val next_entry = input.next()
     next_entry match {
       case NilRLEentry                   => NilRLEentry

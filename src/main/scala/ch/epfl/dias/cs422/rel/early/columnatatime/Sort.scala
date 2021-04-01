@@ -44,16 +44,15 @@ class Sort protected (
         Ordering.fromLessThan((_, _) => false)
       }
 
+    val start = offset.getOrElse(0)
+    val end = start + fetch.getOrElse(Int.MaxValue)
     input
       .execute()
       .transpose
       .filter(_.last.asInstanceOf[Boolean])
       .map(_.toIndexedSeq)
       .sorted(ordering)
-      .slice(
-        offset.getOrElse(0),
-        offset.getOrElse(0) + fetch.getOrElse(Int.MaxValue)
-      )
+      .slice(start, end)
       .transpose
       .map(toHomogeneousColumn)
   }

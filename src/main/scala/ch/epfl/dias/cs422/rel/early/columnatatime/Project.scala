@@ -39,7 +39,7 @@ class Project protected (
   def execute(): IndexedSeq[HomogeneousColumn] = {
     val executed = input.execute()
     if (executed.isEmpty) {
-      IndexedSeq.empty[HomogeneousColumn]
+      executed
     } else {
       evals.map(_(executed.dropRight(1))) :+ executed.last
     }

@@ -63,6 +63,5 @@ class Join(
         .map(toHomogeneousColumn)
 
     }
-
   }
 }
